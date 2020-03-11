@@ -17,16 +17,12 @@ test {
 
 
 dependencies {
-    // Logging
-    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.13.1'
-    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.13.1'
-
     compileOnly 'org.projectlombok:lombok:1.18.12'
     annotationProcessor 'org.projectlombok:lombok:1.18.12'
 
     // Test
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.0'
     testCompileOnly 'org.projectlombok:lombok:1.18.12'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
 }

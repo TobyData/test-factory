@@ -9,8 +9,9 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ObjectFactoryTest {
 
   @Test
-  public void testObjectName() {
+  public void testObjectClassIsDeterminedCorrectly() {
     ObjectFactory objectFactory = new ObjectFactory(String.class);
+    assertEquals("java.lang.String", objectFactory.getTargetClass().getName());
   }
 
   @Test
@@ -29,11 +30,10 @@ public class ObjectFactoryTest {
   }
 
   @Test
-  public void setPrimitiveFields() {
+  public void setPrimitiveFieldsAndStringField() {
     ObjectFactory factory = new ObjectFactory(OnlyPrimitives.class);
     Object obj = factory.createEmptyInstance();
     OnlyPrimitives primitives = (OnlyPrimitives) obj;
-    factory.setAllPrimitiveFields(primitives);
     assertDoesNotThrow(() -> factory.setAllPrimitiveFields(primitives));
     assertNotNull(primitives.getStringField());
   }

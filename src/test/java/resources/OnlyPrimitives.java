@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class OnlyPrimitives {
+
   private int intField;
   private boolean booleanField;
   private byte byteField;
