@@ -25,6 +25,21 @@ class Primitives {
     }
   }
 
+  public static boolean isPrimitive(Class clazz) {
+    switch (clazz.getName()) {
+      case "int":
+      case "float":
+      case "long":
+      case "short":
+      case "char":
+      case "byte":
+      case "boolean":
+        return true;
+      default:
+        return false;
+    }
+  }
+
   public static void setPrimitiveField(Field field, Object obj) {
     field.setAccessible(true);
     try {

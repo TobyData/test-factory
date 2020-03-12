@@ -64,8 +64,8 @@ public class ObjectFactoryTest {
     TestClass t = (TestClass) obj;
     Field field = t.getClass().getDeclaredField("friends");
 
-    // System.out.println(field.getGenericType().getTypeName());
-    // System.out.println(t.toString());
+    assertNotNull(field.getGenericType().getTypeName());
+    assertEquals(2, t.getFriends().size());
   }
 
   @Test

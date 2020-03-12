@@ -5,10 +5,10 @@ public class NonPrimitives {
   private NonPrimitives() {
   }
 
-  public static boolean isNonPrimitive(Class<?> clazz) {
-    return (clazz.equals(String.class) || clazz.equals(Integer.class) || clazz.equals(Double.class) ||
+  public static boolean isAJavaNonPrimitive(Class<?> clazz) {
+    return clazz.equals(String.class) || clazz.equals(Integer.class) || clazz.equals(Double.class) ||
         clazz.equals(Float.class) || clazz.equals(Boolean.class) || clazz.equals(Long.class) ||
-        clazz.equals(Short.class) || clazz.equals(Character.class) || clazz.equals(Byte.class));
+        clazz.equals(Short.class) || clazz.equals(Character.class) || clazz.equals(Byte.class);
   }
 
   public static Object createRandomInstance(Class<?> clazz) {

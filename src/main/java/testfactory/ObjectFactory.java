@@ -13,8 +13,6 @@ public class ObjectFactory {
 
   private Class<?> targetClass;
   private Field[] fields;
-  private final Random random = new Random();
-  private static final String RANDOM_STRING = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
   public ObjectFactory(Class objectClass) {
     targetClass = objectClass;
@@ -34,13 +32,11 @@ public class ObjectFactory {
   }
 
   public Object createRandomInstance() {
-    Object obj;
-    if (NonPrimitives.isNonPrimitive(targetClass)) {
-      obj = NonPrimitives.createRandomInstance(targetClass);
-    } else {
-      obj = createEmptyInstance();
-      setAllFields(obj);
+    if (NonPrimitives.isAJavaNonPrimitive(targetClass)) {
+      return NonPrimitives.createRandomInstance(targetClass);
     }
+    Object obj = createEmptyInstance();
+    setAllFields(obj);
     return obj;
   }
 
@@ -62,27 +58,26 @@ public class ObjectFactory {
   private void setField(Field field, Object obj) {
     field.setAccessible(true);
     try {
-      if (Primitives.isPrimitive(field)) {
-        Primitives.setPrimitiveField(field, obj);
-      }
-      else if (NonPrimitives.isNonPrimitive(field.getType())) {
-        field.set(obj, NonPrimitives.createRandomInstance(field.getType()));
-      }
-      else if (getNoArgsConstructor(field.getType()) != null) {
-        field.set(obj, Objects.requireNonNull(getNoArgsConstructor(field.getType())).newInstance());
-      } else if (field.getType().equals(List.class)) {
+      if (field.getType().equals(List.class)) {
         Class<?> elementType;
         if (field.getGenericType() instanceof ParameterizedType) {
           ParameterizedType pt = (ParameterizedType) field.getGenericType();
           Type[] fieldArgTypes = pt.getActualTypeArguments();
+          ArrayList list = new ArrayList();
           if (fieldArgTypes.length == 1) {
             elementType = (Class<?>) fieldArgTypes[0];
             ObjectFactory listFactory = new ObjectFactory(elementType);
+            list.add(listFactory.createRandomInstance());
+            list.add(listFactory.createRandomInstance());
           }
-          field.set(obj, new ArrayList<>());
+          field.set(obj, list);
         }
-      } else {
-        field.set(obj, null);
+      }
+      else if (Primitives.isPrimitive(field)) {
+        Primitives.setPrimitiveField(field, obj);
+      }
+      else {
+        field.set(obj, NonPrimitives.createRandomInstance(field.getType()));
       }
     } catch (Exception e) {
       e.printStackTrace();
