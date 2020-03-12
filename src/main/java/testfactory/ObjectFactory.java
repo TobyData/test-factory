@@ -4,9 +4,9 @@ import lombok.Data;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Random;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.*;
 
 @Data
 public class ObjectFactory {
@@ -33,19 +33,21 @@ public class ObjectFactory {
     return null;
   }
 
-  public void setAllPrimitiveFields(Object obj) {
-    Arrays.stream(fields).forEach(field -> {
-      setPrimitiveField(field, obj);
-    });
+  public Object createRandomInstance() {
+    Object obj;
+    if (NonPrimitives.isNonPrimitive(targetClass)) {
+      obj = NonPrimitives.createRandomInstance(targetClass);
+    } else {
+      obj = createEmptyInstance();
+      setAllFields(obj);
+    }
+    return obj;
   }
 
-  private String randomString() {
-    int length = random.nextInt(32);
-    StringBuilder stringBuilder = new StringBuilder();
-    for (int i = 0; i < length; i++) {
-      stringBuilder.append(RANDOM_STRING.charAt(random.nextInt(RANDOM_STRING.length() - 1)));
-    }
-    return stringBuilder.toString();
+  private void setAllFields(Object obj) {
+    Arrays.stream(fields).forEach(field -> {
+      setField(field, obj);
+    });
   }
 
   private Constructor<?> getNoArgsConstructor(Class<?> clazz) {
@@ -57,44 +59,34 @@ public class ObjectFactory {
     return null;
   }
 
-  private void setPrimitiveField(Field field, Object obj) {
+  private void setField(Field field, Object obj) {
     field.setAccessible(true);
     try {
-      switch (field.getGenericType().getTypeName()) {
-        case "int":
-          field.setInt(obj, random.nextInt());
-          break;
-        case "boolean":
-          field.setBoolean(obj, random.nextBoolean());
-          break;
-        case "byte":
-          field.setByte(obj, (byte) random.nextInt(255));
-          break;
-        case "char":
-          field.setChar(obj, RANDOM_STRING.charAt(random.nextInt(RANDOM_STRING.length() - 1)));
-          break;
-        case "short":
-          field.setShort(obj, (short) random.nextInt());
-          break;
-        case "long":
-          field.setLong(obj, random.nextLong());
-          break;
-        case "float":
-          field.setFloat(obj, random.nextFloat());
-          break;
-        case "java.lang.String":
-          field.set(obj, randomString());
-          break;
-        default:
-          Constructor<?> noArgsConstructor = getNoArgsConstructor(field.getType());
-          if (noArgsConstructor != null) {
-            field.set(obj, noArgsConstructor.newInstance());
-          } else {
-            field.set(obj, null);
+      if (Primitives.isPrimitive(field)) {
+        Primitives.setPrimitiveField(field, obj);
+      }
+      else if (NonPrimitives.isNonPrimitive(field.getType())) {
+        field.set(obj, NonPrimitives.createRandomInstance(field.getType()));
+      }
+      else if (getNoArgsConstructor(field.getType()) != null) {
+        field.set(obj, Objects.requireNonNull(getNoArgsConstructor(field.getType())).newInstance());
+      } else if (field.getType().equals(List.class)) {
+        Class<?> elementType;
+        if (field.getGenericType() instanceof ParameterizedType) {
+          ParameterizedType pt = (ParameterizedType) field.getGenericType();
+          Type[] fieldArgTypes = pt.getActualTypeArguments();
+          if (fieldArgTypes.length == 1) {
+            elementType = (Class<?>) fieldArgTypes[0];
+            ObjectFactory listFactory = new ObjectFactory(elementType);
           }
+          field.set(obj, new ArrayList<>());
+        }
+      } else {
+        field.set(obj, null);
       }
     } catch (Exception e) {
       e.printStackTrace();
     }
   }
+
 }

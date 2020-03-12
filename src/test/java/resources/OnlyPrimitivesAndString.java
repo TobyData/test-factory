@@ -3,7 +3,7 @@ package resources;
 import lombok.Data;
 
 @Data
-public class OnlyPrimitives {
+public class OnlyPrimitivesAndString {
 
   private int intField;
   private boolean booleanField;
